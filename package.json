@@ -24,7 +24,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.2.7",
     "morgan": "~1.9.1",
-    "passport-js": "^1.0.0",
+    "passport": "^0.5.2",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0"
   },
