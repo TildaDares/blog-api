@@ -1,9 +1,52 @@
 const User = require("../models/user");
+const Post = require("../models/post");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
+
+exports.show = function (req, res, next) {
+  User.find({ _id: req.params.id }).exec(function (err, result) {
+    if (err) return next(err);
+
+    res.status(200).json({ msg: "User found" });
+  });
+};
+
+exports.userPosts = function (req, res, next) {
+  Post.find({ user: req.params.id })
+    .populate("user")
+    .exec(function (err, result) {
+      if (err) return next(err);
+
+      res.status(200).json({ msg: "User's posts found successfully" });
+    });
+};
+
+exports.userPublishedPosts = function (req, res, next) {
+  Post.find({ user: req.params.id, isPublished: true })
+    .populate("user")
+    .exec(function (err, result) {
+      if (err) return next(err);
+
+      res
+        .status(200)
+        .json({ msg: "User's published posts found successfully" });
+    });
+};
+
+exports.userUnpublishedPosts = function (req, res, next) {
+  Post.find({ user: req.params.id, isPublished: false })
+    .populate("user")
+    .exec(function (err, result) {
+      if (err) return next(err);
+
+      res
+        .status(200)
+        .json({ msg: "User's published posts found successfully" });
+    });
+};
 
 exports.signup = [
   body("username").isLength({ min: 1 }).withMessage("Username is required"),
