@@ -12,7 +12,9 @@ passport.use(
       const user = await User.findOne({ username });
 
       if (!user) {
-        return done(null, false, { message: "User not found" });
+        return done(null, false, {
+          message: "Username or Password is invalid",
+        });
       }
 
       const validate = await user.isValidPassword(password);
