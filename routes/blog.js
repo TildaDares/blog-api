@@ -14,11 +14,20 @@ router.post("/login", usersController.login);
 
 // Post routes
 router.get("/posts", postsController.index);
-router.get("/post/:id", postsController.show);
+router.get("/posts/:id", postsController.show);
 router.post(
   "/posts",
   passport.authenticate("jwt", { session: false }),
   postsController.new
 );
-
+router.put(
+  "/posts/:id",
+  passport.authenticate("jwt", { session: false }),
+  postsController.edit
+);
+router.delete(
+  "/posts/:id",
+  passport.authenticate("jwt", { session: false }),
+  postsController.destroy
+);
 module.exports = router;
