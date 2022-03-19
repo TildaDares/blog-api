@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const usersController = require("../controllers/usersController");
 const postsController = require("../controllers/postsController");
+const commentsController = require("../controllers/commentsController");
 const passport = require("passport");
 require("dotenv").config();
 
@@ -37,4 +38,19 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   postsController.destroy
 );
+
+// Comment routes
+router.get("/comments", commentsController.index);
+router.get("/comments/:id", commentsController.show);
+router.post(
+  "/comments",
+  passport.authenticate("jwt", { session: false }),
+  commentsController.new
+);
+router.delete(
+  "/comments/:id",
+  passport.authenticate("jwt", { session: false }),
+  commentsController.destroy
+);
+
 module.exports = router;
