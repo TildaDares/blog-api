@@ -1,7 +1,5 @@
-const Post = require("../models/post");
 const Comment = require("../models/comment");
 const { body, validationResult } = require("express-validator");
-const User = require("../models/user");
 
 exports.index = function (req, res, next) {
   Comment.find({})
