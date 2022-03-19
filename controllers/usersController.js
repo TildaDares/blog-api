@@ -14,6 +14,24 @@ exports.show = function (req, res, next) {
   });
 };
 
+exports.userComments = function (req, res, next) {
+  Comment.find({ user: req.params.id }).exec(function (req, res, next) {
+    if (err) return next(err);
+
+    res.status(200).json({ comments: result });
+  });
+};
+
+exports.userComment = function (req, res, next) {
+  Comment.find({ _id: req.params.commentId, user: req.params.userId }).exec(
+    function (req, res, next) {
+      if (err) return next(err);
+
+      res.status(200).json({ comment: result });
+    }
+  );
+};
+
 exports.userPosts = function (req, res, next) {
   Post.find({ user: req.params.id })
     .populate("user")

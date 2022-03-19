@@ -8,12 +8,19 @@ require("dotenv").config();
 router.get("/", (req, res, next) => res.send("Hello world"));
 
 // User routes
+router.get("/user/:id/posts", usersController.userPosts);
+router.get("/user/:id/posts/published", usersController.userPublishedPosts);
+router.get("/user/:id/posts/unpublished", usersController.userUnpublishedPosts);
+router.get("/user/:id/comments", usersController.userComments);
+router.get("/user/:userId/comments/:commentId", usersController.userComment);
 router.post("/signup", usersController.signup);
-
 router.post("/login", usersController.login);
 
 // Post routes
 router.get("/posts", postsController.index);
+router.get("/posts/:id", postsController.show);
+router.get("/posts/:id/comments", postsController.postComments);
+router.get("/posts/:postId/comments/:commentId", postsController.postComment);
 router.get("/posts/:id", postsController.show);
 router.post(
   "/posts",

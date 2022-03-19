@@ -1,6 +1,7 @@
 const Post = require("../models/post");
+const Comment = require("../models/comment");
 const { body, validationResult } = require("express-validator");
-const user = require("../models/user");
+const User = require("../models/user");
 
 exports.index = function (req, res, next) {
   Post.find({})
@@ -94,3 +95,23 @@ exports.edit = [
     });
   },
 ];
+
+exports.postComments = function (req, res, next) {
+  Comment.find({ post: req.params.id })
+    .populate("user")
+    .exec(function (req, res, next) {
+      if (err) return next(err);
+
+      res.status(200).json({ comments: result });
+    });
+};
+
+exports.postComment = function (req, res, next) {
+  Comment.find({ _id: req.params.commentId, post: req.params.postId })
+    .populate("user")
+    .exec(function (req, res, next) {
+      if (err) return next(err);
+
+      res.status(200).json({ comment: result });
+    });
+};
