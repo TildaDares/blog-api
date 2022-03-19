@@ -34,19 +34,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", blogRouter);
-
-app.get(
-  "/user/profile",
-  passport.authenticate("jwt", { session: false }),
-  (req, res, next) => {
-    res.json({
-      message: "You made it to the secure route",
-      user: req.user,
-      token: req.query.secret_token,
-    });
-  }
-);
+app.use("/api", blogRouter);
 
 app.use(passport.initialize());
 
