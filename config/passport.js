@@ -6,21 +6,6 @@ const ExtractJWT = require("passport-jwt").ExtractJwt;
 require("dotenv").config();
 
 passport.use(
-  "signup",
-  new LocalStrategy(async (username, password, done) => {
-    try {
-      const user = await User.create({
-        username,
-        password,
-        joined_at: new Date(),
-      });
-    } catch (error) {
-      done(error);
-    }
-  })
-);
-
-passport.use(
   "login",
   new LocalStrategy(async (username, password, done) => {
     try {
@@ -37,7 +22,6 @@ passport.use(
           message: "Username or Password is invalid",
         });
       }
-
       return done(null, user, { message: "Logged in Successfully" });
     } catch (error) {
       return done(error);
