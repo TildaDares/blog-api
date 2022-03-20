@@ -15,11 +15,13 @@ exports.show = function (req, res, next) {
 };
 
 exports.userComments = function (req, res, next) {
-  Comment.find({ user: req.params.id }).exec(function (req, res, next) {
-    if (err) return next(err);
+  Comment.find({ user: req.params.id })
+    .sort({ created_at: -1 })
+    .exec(function (req, res, next) {
+      if (err) return next(err);
 
-    res.status(200).json({ comments: result });
-  });
+      res.status(200).json({ comments: result });
+    });
 };
 
 exports.userComment = function (req, res, next) {
@@ -34,6 +36,7 @@ exports.userComment = function (req, res, next) {
 
 exports.userPosts = function (req, res, next) {
   Post.find({ user: req.params.id })
+    .sort({ created_at: -1 })
     .populate("user")
     .exec(function (err, result) {
       if (err) return next(err);
@@ -44,6 +47,7 @@ exports.userPosts = function (req, res, next) {
 
 exports.userPublishedPosts = function (req, res, next) {
   Post.find({ user: req.params.id, isPublished: true })
+    .sort({ created_at: -1 })
     .populate("user")
     .exec(function (err, result) {
       if (err) return next(err);
@@ -56,6 +60,7 @@ exports.userPublishedPosts = function (req, res, next) {
 
 exports.userUnpublishedPosts = function (req, res, next) {
   Post.find({ user: req.params.id, isPublished: false })
+    .sort({ created_at: -1 })
     .populate("user")
     .exec(function (err, result) {
       if (err) return next(err);

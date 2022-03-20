@@ -4,6 +4,7 @@ const { body, validationResult } = require("express-validator");
 
 exports.index = function (req, res, next) {
   Post.find({})
+    .sort({ created_at: -1 })
     .populate("user")
     .exec(function (err, result) {
       if (err) return next(err);
