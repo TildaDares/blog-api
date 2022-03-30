@@ -5,7 +5,7 @@ const { body, validationResult } = require("express-validator");
 exports.index = function (req, res, next) {
   Post.find({})
     .sort({ created_at: -1 })
-    .populate("user")
+    .populate("user", "username")
     .exec(function (err, result) {
       if (err) return next(err);
 
@@ -15,7 +15,7 @@ exports.index = function (req, res, next) {
 
 exports.show = function (req, res, next) {
   Post.find({ _id: req.params.id })
-    .populate("user")
+    .populate("user", "username")
     .exec(function (err, result) {
       if (err) return next(err);
 
@@ -51,7 +51,9 @@ exports.new = [
     post.save((err, result) => {
       if (err) return next(err);
 
-      res.status(201).json({ message: "Post created successfully" });
+      res
+        .status(201)
+        .json({ post: result, message: "Post created successfully" });
     });
   },
 ];
@@ -60,7 +62,7 @@ exports.destroy = function (req, res, next) {
   Post.findByIdAndRemove(req.params.id, function (err) {
     if (err) return next(err);
 
-    res.status(200).json({ message: "Post deleted successfully" });
+    res.status(204).json({ message: "Post deleted successfully" });
   });
 };
 
@@ -76,7 +78,7 @@ exports.edit = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      res.status(400).json({ body: req.body, errors: errors.array() });
+      res.status(400).json({ post: req.body, errors: errors.array() });
       return;
     }
 
@@ -88,30 +90,70 @@ exports.edit = [
       isPublished: req.body.published || true,
     });
 
-    Post.findByIdAndUpdate(req.params.id, post, function (err) {
+    Post.findByIdAndUpdate(req.params.id, post, function (err, result) {
       if (err) return next(err);
 
-      res.status(200).json({ message: "Post updated successfully" });
+      res
+        .status(200)
+        .json({ post: result, message: "Post updated successfully" });
     });
   },
 ];
 
-exports.postComments = function (req, res, next) {
-  Comment.find({ post: req.params.id })
-    .populate("user")
-    .exec(function (req, res, next) {
+exports.userPosts = function (req, res, next) {
+  Post.find({ user: req.params.id })
+    .sort({ created_at: -1 })
+    .exec(function (err, result) {
       if (err) return next(err);
 
-      res.status(200).json({ comments: result });
+      res.status(200).json({ posts: result });
     });
 };
 
-exports.postComment = function (req, res, next) {
-  Comment.find({ _id: req.params.commentId, post: req.params.postId })
-    .populate("user")
-    .exec(function (req, res, next) {
+exports.userPublishedPosts = function (req, res, next) {
+  Post.find({ user: req.params.id, isPublished: true })
+    .sort({ created_at: -1 })
+    .exec(function (err, result) {
       if (err) return next(err);
 
-      res.status(200).json({ comment: result });
+      res.status(200).json({ posts: result });
     });
+};
+
+exports.userUnpublishedPosts = function (req, res, next) {
+  Post.find({ user: req.params.id, isPublished: false })
+    .sort({ created_at: -1 })
+    .exec(function (err, result) {
+      if (err) return next(err);
+
+      res.status(200).json({ posts: result });
+    });
+};
+
+exports.publish = function (req, res, next) {
+  Post.findByIdAndUpdate(
+    req.params.id,
+    { isPublished: true },
+    function (err, result) {
+      if (err) return next(err);
+
+      res
+        .status(200)
+        .json({ post: result, message: "Post published successfully" });
+    }
+  );
+};
+
+exports.unpublish = function (req, res, next) {
+  Post.findByIdAndUpdate(
+    req.params.id,
+    { isPublished: false },
+    function (err, result) {
+      if (err) return next(err);
+
+      res
+        .status(200)
+        .json({ post: result, message: "Post unpublished successfully" });
+    }
+  );
 };
