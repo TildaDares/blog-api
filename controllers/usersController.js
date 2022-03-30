@@ -6,69 +6,23 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
-exports.show = function (req, res, next) {
-  User.find({ _id: req.params.id }).exec(function (err, result) {
+exports.index = function (req, res, next) {
+  User.find({}, { password: 0 }).exec(function (err, result) {
     if (err) return next(err);
 
-    res.status(200).json({ msg: "User found" });
+    res.status(200).json({ users: result });
   });
 };
 
-exports.userComments = function (req, res, next) {
-  Comment.find({ user: req.params.id })
-    .sort({ created_at: -1 })
-    .exec(function (req, res, next) {
-      if (err) return next(err);
+exports.show = function (req, res, next) {
+  User.find({ _id: req.params.id }, { password: 0 }).exec(function (
+    err,
+    result
+  ) {
+    if (err) return next(err);
 
-      res.status(200).json({ comments: result });
-    });
-};
-
-exports.userComment = function (req, res, next) {
-  Comment.find({ _id: req.params.commentId, user: req.params.userId }).exec(
-    function (req, res, next) {
-      if (err) return next(err);
-
-      res.status(200).json({ comment: result });
-    }
-  );
-};
-
-exports.userPosts = function (req, res, next) {
-  Post.find({ user: req.params.id })
-    .sort({ created_at: -1 })
-    .populate("user")
-    .exec(function (err, result) {
-      if (err) return next(err);
-
-      res.status(200).json({ msg: "User's posts found successfully" });
-    });
-};
-
-exports.userPublishedPosts = function (req, res, next) {
-  Post.find({ user: req.params.id, isPublished: true })
-    .sort({ created_at: -1 })
-    .populate("user")
-    .exec(function (err, result) {
-      if (err) return next(err);
-
-      res
-        .status(200)
-        .json({ msg: "User's published posts found successfully" });
-    });
-};
-
-exports.userUnpublishedPosts = function (req, res, next) {
-  Post.find({ user: req.params.id, isPublished: false })
-    .sort({ created_at: -1 })
-    .populate("user")
-    .exec(function (err, result) {
-      if (err) return next(err);
-
-      res
-        .status(200)
-        .json({ msg: "User's published posts found successfully" });
-    });
+    res.status(200).json({ user: result });
+  });
 };
 
 exports.signup = [
@@ -121,7 +75,7 @@ exports.signup = [
         if (err) return next(err);
 
         res.status(201).json({
-          message: "Successfully signed up",
+          msg: "Successfully signed up",
           user: req.user,
         });
       });
@@ -133,18 +87,21 @@ exports.login = async (req, res, next) => {
   passport.authenticate("login", async (err, user, info) => {
     try {
       if (err || !user) {
-        return res.status(400).json({ message: info.message });
+        return res.status(400).json({ msg: info.message });
       }
 
       req.login(user, { session: false }, async (error) => {
         if (error) return next(error);
 
-        const body = { _id: user._id, username: user.username };
-        const token = jwt.sign({ user: body }, process.env.SECRET);
+        const body = {
+          _id: user._id,
+          username: user.username,
+        };
+        const token = jwt.sign({ user: body }, process.env.SECRET, {
+          expiresIn: "2d",
+        });
 
-        return res
-          .status(200)
-          .json({ message: "Successfully logged in", token });
+        return res.status(200).json({ msg: "Successfully logged in", token });
       });
     } catch (error) {
       return next(error);
