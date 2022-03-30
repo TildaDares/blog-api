@@ -2,8 +2,9 @@ const Comment = require("../models/comment");
 const { body, validationResult } = require("express-validator");
 
 exports.index = function (req, res, next) {
-  Comment.find({})
-    .populate("user")
+  Comment.find({ post: req.params.postId })
+    .sort({ created_at: -1 })
+    .populate("user", "username")
     .exec(function (err, result) {
       if (err) return next(err);
 
@@ -12,8 +13,8 @@ exports.index = function (req, res, next) {
 };
 
 exports.show = function (req, res, next) {
-  Comment.find({ _id: req.params.id })
-    .populate("user")
+  Comment.find({ _id: req.params.commentId, post: req.params.postId })
+    .populate("user", "username")
     .exec(function (err, result) {
       if (err) return next(err);
 
@@ -35,13 +36,15 @@ exports.new = [
       body: req.body.body,
       created_at: new Date(),
       user: req.user._id,
-      post: req.params.id,
+      post: req.params.postId,
     });
 
     comment.save((err, result) => {
       if (err) return next(err);
 
-      res.status(201).json({ message: "Comment created successfully" });
+      res
+        .status(201)
+        .json({ comment: result, message: "Comment created successfully" });
     });
   },
 ];
@@ -52,4 +55,24 @@ exports.destroy = function (req, res, next) {
 
     res.status(200).json({ message: "Comment deleted successfully" });
   });
+};
+
+exports.userComments = function (req, res, next) {
+  Comment.find({ user: req.params.id })
+    .sort({ created_at: -1 })
+    .exec(function (err, result) {
+      if (err) return next(err);
+
+      res.status(200).json({ comments: result });
+    });
+};
+
+exports.userComment = function (req, res, next) {
+  Comment.find({ _id: req.params.commentId, user: req.params.userId }).exec(
+    function (err, result) {
+      if (err) return next(err);
+
+      res.status(200).json({ comment: result });
+    }
+  );
 };
