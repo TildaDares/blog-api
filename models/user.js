@@ -8,7 +8,6 @@ const UserSchema = new Schema({
   bio: String,
   joined_at: { type: Date, required: true },
   avatar: String,
-  isAdmin: { type: Boolean, default: false },
 });
 
 UserSchema.methods.isValidPassword = async function (password) {
