@@ -4,24 +4,39 @@ const usersController = require("../controllers/usersController");
 const postsController = require("../controllers/postsController");
 const commentsController = require("../controllers/commentsController");
 const passport = require("passport");
+const authorization = require("../middleware/authorization");
 require("dotenv").config();
 
 router.get("/", (req, res, next) => res.send("Hello world"));
 
 // User routes
-router.get("/user/:id/posts", usersController.userPosts);
-router.get("/user/:id/posts/published", usersController.userPublishedPosts);
-router.get("/user/:id/posts/unpublished", usersController.userUnpublishedPosts);
-router.get("/user/:id/comments", usersController.userComments);
-router.get("/user/:userId/comments/:commentId", usersController.userComment);
+router.get("/users", usersController.index);
+router.get("/users/:id", usersController.show);
 router.post("/signup", usersController.signup);
 router.post("/login", usersController.login);
 
+// Comment routes
+router.get("/posts/:postId/comments", commentsController.index);
+router.get("/posts/:postId/comments/:commentId", commentsController.show);
+router.post(
+  "/posts/:postId/comments",
+  passport.authenticate("jwt", { session: false }),
+  commentsController.new
+);
+router.delete(
+  "/comments/:id",
+  passport.authenticate("jwt", { session: false }),
+  authorization.isCommentAuthor,
+  commentsController.destroy
+);
+router.get("/users/:id/comments", commentsController.userComments);
+router.get(
+  "/users/:userId/comments/:commentId",
+  commentsController.userComment
+);
+
 // Post routes
 router.get("/posts", postsController.index);
-router.get("/posts/:id", postsController.show);
-router.get("/posts/:id/comments", postsController.postComments);
-router.get("/posts/:postId/comments/:commentId", postsController.postComment);
 router.get("/posts/:id", postsController.show);
 router.post(
   "/posts",
@@ -31,26 +46,32 @@ router.post(
 router.put(
   "/posts/:id",
   passport.authenticate("jwt", { session: false }),
+  authorization.isPostAuthor,
   postsController.edit
+);
+router.put(
+  "/posts/:id/publish",
+  passport.authenticate("jwt", { session: false }),
+  authorization.isPostAuthor,
+  postsController.publish
+);
+router.put(
+  "/posts/:id/unpublish",
+  passport.authenticate("jwt", { session: false }),
+  authorization.isPostAuthor,
+  postsController.unpublish
 );
 router.delete(
   "/posts/:id",
   passport.authenticate("jwt", { session: false }),
+  authorization.isPostAuthor,
   postsController.destroy
 );
-
-// Comment routes
-router.get("/comments", commentsController.index);
-router.get("/comments/:id", commentsController.show);
-router.post(
-  "/comments",
-  passport.authenticate("jwt", { session: false }),
-  commentsController.new
-);
-router.delete(
-  "/comments/:id",
-  passport.authenticate("jwt", { session: false }),
-  commentsController.destroy
+router.get("/users/:id/posts", postsController.userPosts);
+router.get("/users/:id/posts/published", postsController.userPublishedPosts);
+router.get(
+  "/users/:id/posts/unpublished",
+  postsController.userUnpublishedPosts
 );
 
 module.exports = router;
