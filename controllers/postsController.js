@@ -14,7 +14,7 @@ exports.index = function (req, res, next) {
 };
 
 exports.show = function (req, res, next) {
-  Post.find({ _id: req.params.id })
+  Post.findOne({ _id: req.params.id })
     .populate("user", "username")
     .exec(function (err, result) {
       if (err) return next(err);

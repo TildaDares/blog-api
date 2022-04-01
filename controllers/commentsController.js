@@ -13,7 +13,7 @@ exports.index = function (req, res, next) {
 };
 
 exports.show = function (req, res, next) {
-  Comment.find({ _id: req.params.commentId, post: req.params.postId })
+  Comment.findOne({ _id: req.params.commentId, post: req.params.postId })
     .populate("user", "username")
     .exec(function (err, result) {
       if (err) return next(err);

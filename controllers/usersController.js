@@ -15,7 +15,7 @@ exports.index = function (req, res, next) {
 };
 
 exports.show = function (req, res, next) {
-  User.find({ _id: req.params.id }, { password: 0 }).exec(function (
+  User.findOne({ _id: req.params.id }, { password: 0 }).exec(function (
     err,
     result
   ) {
